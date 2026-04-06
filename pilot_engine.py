@@ -1,28 +1,18 @@
+import os
 
-# GitHub ကို Update လုပ်မယ်
-git add pilot_engine.py
-git commit -m "Add Pilot Engine for Auto-Fixing"
-git push origin main
-# GitHub ကို Update လုပ်မယ်
-git add pilot_engine.py
-git commit -m "Add Pilot Engine for Auto-Fixing"
-git push origin mainimport os
-import requests
-
-def pilot_search_and_fix():
-    print("[*] Pilot Mode: Checking Myanmar Font Rendering...")
+def pilot_fix():
+    print("[*] Pilot Mode: Running Final Font Fix...")
     
-    # ၁။ Font ရှိမရှိ အရင်စစ်မယ်
-    if not os.path.exists(os.path.expanduser("~/.termux/font.ttf")):
-        print("[!] Error: Font missing. Pilot is searching for a solution...")
-        
-        # ၂။ Web Search ခေါက်သလိုမျိုး Direct Link အသစ်ကို လှမ်းယူမယ်
-        new_link = "https://github.com/thanyawzinmin/Myanmar-Unicode-Fonts/raw/master/Regular/Pyidaungsu-Regular.ttf"
-        os.system(f"wget -q {new_link} -O ~/.termux/font.ttf")
+    # Font path သတ်မှတ်ခြင်း
+    home = os.path.expanduser("~")
+    font_file = os.path.join(home, ".termux/font.ttf")
+    
+    if os.path.exists(font_file):
+        print("[+] Found font.ttf. Reloading settings...")
         os.system("termux-reload-settings")
-        print("[+] Pilot: Font Fixed and Reloaded!")
+        print("[SUCCESS] Pilot has reloaded the system!")
     else:
-        print("[+] Pilot: System is stable.")
+        print("[-] Font file not found. Please run install.py first.")
 
 if __name__ == "__main__":
-    pilot_search_and_fix()
+    pilot_fix()
