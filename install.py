@@ -3,41 +3,42 @@ import subprocess
 
 def run_cmd(cmd):
     print(f"[*] Running: {cmd}")
-    # shell=True သုံးပြီး error ဖြစ်ရင်လည်း ဆက်သွားအောင် လုပ်ထားတယ်
     return subprocess.run(cmd, shell=True)
 
-print("--- Myanmar Font Fixer (V3 - Stable) by Meonnmi-ops ---")
+print("--- Myanmar Font Fixer (V4) by Meonnmi-ops ---")
 
-# ၁။ Packages တွေကို Force Install လုပ်မယ်
-print("[*] Updating and installing packages...")
-run_cmd("pkg update -y && pkg install fontconfig wget -y")
+# ၁။ Path ပြဿနာကို ဖြေရှင်းရန် environment update လုပ်ခြင်း
+os.environ["PATH"] += os.pathsep + "/data/data/com.termux/files/usr/bin"
 
-# ၂။ Folder များဆောက်မယ်
-run_cmd("mkdir -p ~/.termux")
-run_cmd("mkdir -p ~/.local/share/fonts")
+# ၂။ Folder များ အသေအချာဆောက်ခြင်း
+run_cmd("mkdir -p ~/.termux ~/.local/share/fonts")
 
-# ၃။ လုံးဝမသေနိုင်တဲ့ Font Link ကို သုံးမယ် (Direct Download)
-print("[*] Downloading Myanmar Unicode Font...")
-# Pyidaungsu Official Stable Link
-font_url = "https://github.com/googlefonts/pyidaungsu/raw/main/fonts/Pyidaungsu-Regular.ttf"
-run_cmd(f"wget --no-check-certificate '{font_url}' -O ~/.termux/font.ttf")
+# ၃။ လုံးဝ မသေနိုင်တဲ့ Font Link (Google Fonts Global CDN)
+print("[*] Downloading Pyidaungsu Font from Google CDN...")
+# ဒီ Link က GitHub ထက် ပိုငြိမ်ပါတယ်
+font_url = "https://raw.githubusercontent.com/googlefonts/pyidaungsu/master/fonts/Pyidaungsu-Regular.ttf"
+run_cmd(f"wget -q --no-check-certificate '{font_url}' -O ~/.termux/font.ttf")
 
-# ၄။ Font ဖိုင်ရှိမရှိ စစ်မယ်
-if os.path.exists(os.path.expanduser("~/.termux/font.ttf")):
+# ၄။ File ရှိမရှိ သေချာစစ်ပြီးမှ ကူးမယ်
+font_path = os.path.expanduser("~/.termux/font.ttf")
+if os.path.exists(font_path) and os.path.getsize(font_path) > 1000:
     run_cmd("cp ~/.termux/font.ttf ~/.local/share/fonts/Myanmar3.ttf")
-    print("[+] Font download successful!")
+    print("[+] Font downloaded and verified.")
 else:
-    print("[-] Font download failed. Please check internet.")
+    print("[-] Download failed. Using alternative link...")
+    alt_url = "https://github.com/thanyawzinmin/Myanmar-Unicode-Fonts/raw/master/Regular/Pyidaungsu-Regular.ttf"
+    run_cmd(f"wget -q --no-check-certificate '{alt_url}' -O ~/.termux/font.ttf")
 
-# ၅။ Termux Config ပြင်ဆင်ခြင်း
+# ၅။ Termux properties ကို အသစ်ကနေ အစဆုံး ပြန်ရေးမယ်
+print("[*] Setting Termux Properties...")
 properties_path = os.path.expanduser("~/.termux/termux.properties")
 with open(properties_path, "w") as f:
     f.write("terminal-margin-horizontal=0\n")
     f.write("terminal-margin-vertical=0\n")
+    f.write("font-family=monospace\n")
 
-# ၆။ Refresh လုပ်ခြင်း (Path ကိုပါ တိုက်ရိုက်ခေါ်မယ်)
-print("[*] Refreshing Settings...")
-run_cmd("/data/data/com.termux/files/usr/bin/fc-cache -fv || fc-cache -fv")
+# ၆။ Refresh လုပ်ခြင်း
+print("[*] Reloading Settings...")
 run_cmd("termux-reload-settings")
 
-print("\n[SUCCESS] Restart Termux (Force Stop) to see the magic!")
+print("\n[SUCCESS] If rendering is still broken, long-press screen -> More -> Style -> Reset.")
